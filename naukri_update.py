@@ -9,20 +9,35 @@ options = Options()
 options.add_argument("--headless")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
+options.add_argument("--window-size=1920,1080")
+options.add_argument("--disable-blink-features=AutomationControlled")
+options.add_argument(f"user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36")
+options.add_experimental_option("excludeSwitches", ["enable-automation"])
+options.add_experimental_option('useAutomationExtension', False)
 
 driver = webdriver.Chrome(options=options)
 wait = WebDriverWait(driver, 15)
-driver.get("https://www.naukri.com/nlogin/login")
 
-wait.until(EC.presence_of_element_located((By.ID, "usernameField"))).send_keys(os.getenv("NAUKRI_USER"))
-wait.until(EC.presence_of_element_located((By.ID, "passwordField"))).send_keys(os.getenv("NAUKRI_PASS"))
-wait.until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Login']"))).click()
+try:
+    driver.get("https://www.naukri.com/nlogin/login")
+    
+    # Wait for the login form to load
+    wait.until(EC.presence_of_element_located((By.ID, "usernameField"))).send_keys(os.getenv("NAUKRI_USER"))
+    wait.until(EC.presence_of_element_located((By.ID, "passwordField"))).send_keys(os.getenv("NAUKRI_PASS"))
+    wait.until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Login']"))).click()
+    
+    time.sleep(5)
+    driver.get("https://www.naukri.com/mnjuser/profile")
+    
+    # Trigger profile update by clicking Save
+    wait.until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Save']"))).click()
+    
+    time.sleep(3) # wait a few seconds for the save to process before quitting
 
-time.sleep(5)
-driver.get("https://www.naukri.com/mnjuser/profile")
+except Exception as e:
+    print(f"Error occurred: {e}")
+    driver.save_screenshot("error_screenshot.png")
+    raise e
 
-# Trigger profile update by clicking Save
-wait.until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Save']"))).click()
-
-time.sleep(3) # wait a few seconds for the save to process before quitting
-driver.quit()
+finally:
+    driver.quit()
