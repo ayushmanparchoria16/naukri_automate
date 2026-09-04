@@ -22,8 +22,8 @@ jobs:
 
       - name: Run Naukri updater
         env:
-          NAUKRI_USER: ${{ secrets.NAUKRI_USER }}
-          NAUKRI_PASS: ${{ secrets.NAUKRI_PASS }}
+          NAUKRI_USER: ${{ secrets.NAUKRI_USERNAME }}
+          NAUKRI_PASS: ${{ secrets.NAUKRI_PASSWORD }}
         run: python naukri_update.py
 
       - name: Upload Error Screenshot
