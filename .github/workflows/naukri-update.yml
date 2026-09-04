@@ -26,10 +26,10 @@ jobs:
           NAUKRI_PASS: ${{ secrets.NAUKRI_PASSWORD }}
         run: python naukri_update.py
 
-      - name: Upload Error Screenshot
+      - name: Upload Screenshots
         uses: actions/upload-artifact@v4
-        if: failure()
+        if: always()
         with:
-          name: error-screenshot
-          path: error_screenshot.png
+          name: debugging-screenshots
+          path: "*.png"
           if-no-files-found: ignore

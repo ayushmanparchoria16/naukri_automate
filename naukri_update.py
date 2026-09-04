@@ -30,6 +30,9 @@ try:
     wait.until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Login']"))).click()
     
     time.sleep(5)
+    # Take a screenshot to see what Naukri shows after clicking login (e.g. OTP prompt, invalid password, or success)
+    driver.save_screenshot("after_login.png")
+    
     driver.get("https://www.naukri.com/mnjuser/profile")
     
     # Trigger profile update by clicking Save
