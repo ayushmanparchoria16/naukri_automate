@@ -18,6 +18,9 @@ options.add_experimental_option('useAutomationExtension', False)
 driver = webdriver.Chrome(options=options)
 wait = WebDriverWait(driver, 15)
 
+if not os.getenv("NAUKRI_USER") or not os.getenv("NAUKRI_PASS"):
+    raise ValueError("NAUKRI_USER or NAUKRI_PASS environment variables are missing or empty. Please check your GitHub Secrets!")
+
 try:
     driver.get("https://www.naukri.com/nlogin/login")
     
