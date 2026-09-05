@@ -24,9 +24,19 @@ if not os.getenv("NAUKRI_USER") or not os.getenv("NAUKRI_PASS"):
 try:
     driver.get("https://www.naukri.com/nlogin/login")
     
-    # Wait for the login form to load
-    wait.until(EC.presence_of_element_located((By.ID, "usernameField"))).send_keys(os.getenv("NAUKRI_USER"))
-    wait.until(EC.presence_of_element_located((By.ID, "passwordField"))).send_keys(os.getenv("NAUKRI_PASS"))
+    # Wait for the login form to load and interact with it carefully (for React state)
+    username_el = wait.until(EC.element_to_be_clickable((By.ID, "usernameField")))
+    username_el.click()
+    username_el.clear()
+    username_el.send_keys(os.getenv("NAUKRI_USER"))
+    time.sleep(1)
+    
+    password_el = wait.until(EC.element_to_be_clickable((By.ID, "passwordField")))
+    password_el.click()
+    password_el.clear()
+    password_el.send_keys(os.getenv("NAUKRI_PASS"))
+    time.sleep(1)
+    
     wait.until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Login']"))).click()
     
     time.sleep(5)
