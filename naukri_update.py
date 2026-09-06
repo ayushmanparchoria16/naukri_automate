@@ -153,6 +153,31 @@ try:
     
     driver.get("https://www.naukri.com/mnjuser/profile")
     
+    # The "Save" button isn't visible until we click an "Edit" pencil icon.
+    # We will target the "Resume headline" section to trigger the update.
+    edit_xpaths = [
+        "//span[text()='Resume headline']/following-sibling::span[contains(@class, 'edit')]",
+        "//span[text()='Resume headline']/../following-sibling::span[contains(@class, 'edit')]",
+        "//*[contains(text(), 'Resume headline')]/ancestor::div[1]//*[contains(@class, 'edit')]",
+        "//*[contains(text(), 'Resume headline')]/ancestor::div[2]//*[contains(@class, 'edit')]"
+    ]
+    
+    clicked_edit = False
+    for xpath in edit_xpaths:
+        try:
+            edit_btn = WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, xpath)))
+            edit_btn.click()
+            clicked_edit = True
+            print(f"Successfully clicked Edit pencil icon.")
+            break
+        except:
+            continue
+            
+    if not clicked_edit:
+        raise Exception("Could not find the Edit pencil icon for Resume Headline.")
+        
+    time.sleep(2) # Wait for the edit modal to pop up
+    
     # Trigger profile update by clicking Save
     wait.until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Save']"))).click()
     
