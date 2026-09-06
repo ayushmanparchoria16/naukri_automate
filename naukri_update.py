@@ -61,10 +61,21 @@ def get_latest_otp(email_user, email_pass):
                 else:
                     body = msg.get_payload(decode=True).decode(errors="ignore")
                     
-                # Extract 6-digit OTP
-                match = re.search(r'\b\d{6}\b', body)
+                # Clean HTML tags
+                clean_body = re.sub(r'<[^>]+>', ' ', body)
+                
+                # First try to find it near "Code requested"
+                match = re.search(r'Code requested\s*([\d\s]{6,20})', clean_body, re.IGNORECASE)
                 if match:
-                    return match.group(0)
+                    otp = re.sub(r'\D', '', match.group(1))
+                    if len(otp) >= 6:
+                        return otp[:6]
+                
+                # Fallback: Extract exactly 6 digits, optionally separated by spaces
+                match = re.search(r'(?<!\d)\d(?:\s*\d){5}(?!\d)', clean_body)
+                if match:
+                    otp = re.sub(r'\D', '', match.group(0))
+                    return otp
     except Exception as e:
         print(f"Failed to fetch OTP: {e}")
     finally:
