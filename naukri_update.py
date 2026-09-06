@@ -8,9 +8,28 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+def clear_old_emails(email_user, email_pass):
+    print("Clearing any old unread emails from Naukri...")
+    try:
+        mail = imaplib.IMAP4_SSL("imap.gmail.com")
+        mail.login(email_user, email_pass)
+        mail.select("inbox")
+        status, messages = mail.search(None, '(UNSEEN FROM "info@naukri.com")')
+        if status == 'OK' and messages[0]:
+            for email_id in messages[0].split():
+                mail.store(email_id, '+FLAGS', '\\Seen')
+            print("Old emails cleared.")
+    except Exception as e:
+        print(f"Could not clear old emails: {e}")
+    finally:
+        try:
+            mail.logout()
+        except:
+            pass
+
 def get_latest_otp(email_user, email_pass):
-    print("Waiting for OTP email to arrive (15 seconds)...")
-    time.sleep(15)
+    print("Waiting for OTP email to arrive (25 seconds)...")
+    time.sleep(25)
     
     try:
         mail = imaplib.IMAP4_SSL("imap.gmail.com")
@@ -68,8 +87,11 @@ options.add_experimental_option('useAutomationExtension', False)
 driver = webdriver.Chrome(options=options)
 wait = WebDriverWait(driver, 15)
 
-if not os.getenv("NAUKRI_USER") or not os.getenv("NAUKRI_PASS"):
-    raise ValueError("NAUKRI_USER or NAUKRI_PASS environment variables are missing or empty. Please check your GitHub Secrets!")
+if not os.getenv("NAUKRI_USER") or not os.getenv("NAUKRI_PASS") or not os.getenv("GMAIL_APP_PASSWORD"):
+    raise ValueError("Missing environment variables. Please check your GitHub Secrets!")
+
+# Clear any old unread OTP emails before we trigger a new one
+clear_old_emails(os.getenv("NAUKRI_USER"), os.getenv("GMAIL_APP_PASSWORD"))
 
 try:
     driver.get("https://www.naukri.com/nlogin/login")
